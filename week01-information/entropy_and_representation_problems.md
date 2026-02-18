@@ -1,7 +1,7 @@
-#Week 1 – Information: Sources & Representation
+# Week 1 – Information: Sources & Representation
 Type: Problem with Solutions
 
-##Problem 1 – Self-Information
+## Problem 1 – Self-Information
 
 A network sensor reports whether a packet is successfully delivered or dropped.
 
@@ -23,7 +23,7 @@ This means a dropped packet gives about 4.32 bits of information because it is r
 
 ---
 
-##Problem 2 – Entropy of a Biased System
+## Problem 2 – Entropy of a Biased System
 
 Suppose:
 
@@ -50,7 +50,7 @@ Because the system is very predictable (mostly success), entropy is small.
 
 ---
 
-##Problem 3 – ASCII vs UTF-8
+## Problem 3 – ASCII vs UTF-8
 
 Consider the text:
 
@@ -80,7 +80,7 @@ UTF-8 works for all languages but may use more bytes for non-English characters.
 
 ---
 
-##Problem 4 – Base64 Overhead
+## Problem 4 – Base64 Overhead
 
 Base64 encoding:
 
@@ -96,7 +96,7 @@ We use it because some systems only allow text, not raw binary.
 
 ---
 
-##Problem 5 – Uncompressed Video Data Rate
+## Problem 5 – Uncompressed Video Data Rate
 
 1080p video:
 1920 × 1080 pixels
@@ -123,7 +123,7 @@ This shows why compression is necessary.
 
 ---
 
-##Problem 6 – SI vs Binary Prefix
+## Problem 6 – SI vs Binary Prefix
 
 1 TB (SI) = 1,000,000,000,000 bytes
 
