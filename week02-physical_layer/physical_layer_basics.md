@@ -19,9 +19,9 @@ The physical layer is the lowest layer in the network stack. It deals with trans
 Two insulated copper wires twisted together. Twisting reduces electromagnetic interference.
 
 **Key Parameters:**
-- Characteristic impedance: `100Ω` (must match transmitter/receiver)
-- Attenuation: `~2.5 dB` per 100m at 100 MHz
-- Propagation speed: `~0.64c`
+- Characteristic impedance: 100Ω (must match transmitter/receiver)
+- Attenuation: ~2.5 dB per 100m at 100 MHz
+- Propagation speed: ~0.64c
 - Categories: Cat 5e (100 MHz), Cat 6 (250 MHz), Cat 8 (2000 MHz)
 
 **Example Calculation:**
@@ -39,12 +39,12 @@ Structure: Center conductor, dielectric insulator, outer shield, protective jack
 
 **Advantages:**
 - Better shielding than twisted pair
-- Lower attenuation: `0.5-2 dB` per 100m
+- Lower attenuation: 0.5-2 dB per 100m
 - Higher bandwidth: DC to 1+ GHz
 
 **Types:**
-- `RG-6`: 75Ω for cable TV, cable modem
-- `RG-58`: 50Ω for legacy Ethernet
+- RG-6: 75Ω for cable TV, cable modem
+- RG-58: 50Ω for legacy Ethernet
 
 ### 2.3 Optical Fiber
 
@@ -71,10 +71,10 @@ Light propagates through glass core via total internal reflection.
 **Example from Lecture:**
 
 100 km fiber link at 1550 nm:
-- Transmit power: `0 dBm` (1 mW)
-- Total loss: `20 dB`
-- Received power: `-20 dBm` (10 μW)
-- Power ratio: `100:1` loss (still usable!)
+- Transmit power: 0 dBm (1 mW)
+- Total loss: 20 dB
+- Received power: -20 dBm (10 μW)
+- Power ratio: 100:1 loss (still usable!)
 
 ---
 
@@ -88,8 +88,8 @@ Multiplication becomes addition, making calculations easier.
 
 
 **Absolute Power Levels:**
-- `dBm`: relative to 1 mW (0 dBm = 1 mW)
-- `dBW`: relative to 1 W (0 dBW = 1 W)
+- dBm: relative to 1 mW (0 dBm = 1 mW)
+- dBW: relative to 1 W (0 dBW = 1 W)
 
 ### 3.2 Key Values to Memorize
 
@@ -157,9 +157,9 @@ Link margin = -12 - (-25) = 13 dB
 
 
 Where:
-- `C` = channel capacity (maximum data rate)
-- `B` = bandwidth (Hz)
-- `S/N` = signal-to-noise ratio (linear, not dB)
+- C = channel capacity (maximum data rate)
+- B = bandwidth (Hz)
+- S/N = signal-to-noise ratio (linear, not dB)
 
 ### Key Insights:
 
@@ -199,9 +199,9 @@ Where:
 
 
 Where:
-- `a_k` = symbol values (from bits)
-- `g(t)` = pulse shape
-- `T` = symbol period
+- a_k = symbol values (from bits)
+- g(t) = pulse shape
+- T = symbol period
 
 ### 6.2 Bit-to-Symbol Mapping
 
@@ -265,9 +265,9 @@ Q(x) decreases rapidly with x:
 An office needs to run Ethernet cable 80 meters.
 
 **Given:**
-- Transmit power: `20 dBm`
-- Cable loss: `2.5 dB` per 100m
-- Receiver sensitivity: `-10 dBm`
+- Transmit power: 20 dBm
+- Cable loss: 2.5 dB per 100m
+- Receiver sensitivity: -10 dBm
 
 **Solution:**
 Loss for 80m = 2.5 × (80/100) = 2 dB
@@ -283,9 +283,9 @@ Margin = 18 - (-10) = 28 dB
 How far can signal go before reaching sensitivity?
 
 **Given:**
-- Transmit power: `15 dBm`
-- Receiver sensitivity: `-25 dBm`
-- Cable loss: `2.5 dB` per 100m
+- Transmit power: 15 dBm
+- Receiver sensitivity: -25 dBm
+- Cable loss: 2.5 dB per 100m
 
 **Solution:**
 Total allowable loss = 15 - (-25) = 40 dB
@@ -299,8 +299,8 @@ Maximum distance = (40/2.5) × 100 = 1600 m
 Compare loss over 10 km.
 
 **Given:**
-- Copper loss: `25 dB/km` at 100 MHz
-- Fiber loss: `0.2 dB/km` at 1550 nm
+- Copper loss: 25 dB/km at 100 MHz
+- Fiber loss: 0.2 dB/km at 1550 nm
 
 **Solution:**
 Copper total loss = 25 × 10 = 250 dB
