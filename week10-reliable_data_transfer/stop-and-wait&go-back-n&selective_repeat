@@ -1,0 +1,176 @@
+# Week 10 — Problem Set
+## Reliable Data Transfer: Stop-and-Wait, Go‑Back‑N, Selective Repeat
+
+---
+
+### Problem 1: Stop‑and‑Wait Utilisation
+
+A geostationary satellite link has a bandwidth of 2 Mb/s and a one‑way propagation delay of 250 ms.  
+Frames are 1250 bytes long. ACK frames are negligible in size.
+
+**(a)** Calculate the transmission time for one data frame.  
+**(b)** Determine the total round‑trip time (RTT) assuming processing time is zero.  
+**(c)** Using the stop‑and‑wait protocol, what is the maximum effective throughput?  
+**(d)** What fraction of the link’s capacity is actually used (the utilisation $U$)?  
+**(e)** How many frames would need to be “in flight” (pipelined) to fully utilise the link, assuming a sliding window protocol with window size $W$?
+
+---
+
+**Solution:**
+
+**(a)**
+Frame size $L = 1250 \text{ bytes} = 1250 \times 8 = 10,000 \text{ bits}$.  
+Transmission time  
+
+$$
+t_{\text{tx}} = \frac{L}{R} = \frac{10,000 \text{ bits}}{2 \times 10^6 \text{ bps}} = 0.005 \text{ s} = 5 \text{ ms}.
+$$
+
+**(b)**
+One‑way delay $t_{\text{prop}} = 250 \text{ ms}$.  
+RTT $= 2 \times t_{\text{prop}} = 500 \text{ ms} = 0.5 \text{ s}$.
+
+**(c)**
+Stop‑and‑wait sends one frame, then waits for the ACK. The total cycle time per frame is  
+
+$$
+t_{\text{cycle}} = t_{\text{tx}} + \text{RTT} = 5 \text{ ms} + 500 \text{ ms} = 505 \text{ ms}.
+$$
+
+Effective throughput = $\frac{\text{frame size}}{t_{\text{cycle}}} = \frac{10,000 \text{ bits}}{0.505 \text{ s}} \approx 19,802 \text{ bps}$.
+
+**(d)**
+Link capacity $= 2 \text{ Mb/s} = 2,000,000 \text{ bps}$.
+
+$$
+U = \frac{t_{\text{tx}}}{t_{\text{tx}} + \text{RTT}} = \frac{5 \text{ ms}}{505 \text{ ms}} \approx 0.0099 \ \ (= 0.99\%).
+$$
+
+**(e)**
+To keep the pipe full, the window size must be at least the bandwidth‑delay product (BDP) divided by frame size.
+
+$\text{BDP} = R \times \text{RTT} = 2 \times 10^6 \times 0.5 = 1,000,000 \text{ bits} = 125,000 \text{ bytes}$.  
+Number of frames needed:
+
+$$
+W \ge \frac{\text{BDP}}{L} = \frac{125,000 \text{ bytes}}{1250 \text{ bytes}} = 100 \text{ frames}.
+$$
+
+---
+
+### Problem 2: Go‑Back‑N Sequence Numbers
+
+A Go‑Back‑N protocol uses a 3‑bit sequence number field.
+
+**(a)** What is the maximum allowable window size $N$?  
+**(b)** Why must the window be smaller than the total number of sequence numbers?  
+**(c)** If the sender has a window of size 7 and the receiver expects sequence number 4, what range of sequence numbers may the sender currently transmit?
+
+---
+
+**Solution:**
+
+**(a)**
+With $k = 3$ bits, there are $2^3 = 8$ sequence numbers.  
+For Go‑Back‑N, the maximum window size is $N_{\text{max}} = 2^k - 1 = 7$.
+
+**(b)**
+If the window size were $2^k$, the receiver could not distinguish between a new transmission and a retransmitted frame from the previous cycle. For example, with a window of 8, all sequence numbers 0–7 are in use. If the sender retransmits frame 0 after a timeout, the receiver, which has already advanced past frame 7, might interpret the retransmitted frame 0 as the next new frame, causing duplication. Keeping one sequence number unused prevents this ambiguity.
+
+**(c)**
+With a window size of 7 and the receiver expecting sequence number 4, the sender’s window covers from 4 up to $(4 + 7 - 1) \mod 8 = 2$.  
+So the allowed transmit window is: **4, 5, 6, 7, 0, 1, 2**.
+
+---
+
+### Problem 3: Selective Repeat Window Constraint
+
+A Selective Repeat protocol also uses a 3‑bit sequence number field.
+
+**(a)** What is the maximum window size for Selective Repeat?  
+**(b)** Explain why the limit is stricter than that of Go‑Back‑N.  
+**(c)** If the sender window size is 4 and the most recently acknowledged packet is sequence number 6, what are the possible sequence numbers currently “in flight” (sent but unacknowledged)?
+
+---
+
+**Solution:**
+
+**(a)**
+For Selective Repeat, the maximum window size is $N_{\text{max}} = 2^{k-1} = 2^{2} = 4$.
+
+**(b)**
+In SR, the receiver buffers out‑of‑order packets. Suppose window size were 5 (with 8 sequence numbers). After receiving all 5 packets (say 0–4), the receiver slides its window to 5–1. If the sender retransmits an old packet 0 that had been lost, the receiver, now accepting packets 5,6,7,0,1, would consider the retransmitted 0 as a new packet (since it falls inside the new window). This would cause a duplicate delivery. Keeping the window size no larger than half the sequence number space avoids overlap between the sender’s possible retransmissions and the receiver’s new window.
+
+**(c)**
+With SR, the sender window size is 4. Last ACK is for sequence 6, meaning the receiver has received all packets up to and including 6. The sender’s window therefore starts at 7 and contains four sequence numbers: **7, 0, 1, 2**. These are the packets currently in flight.
+
+---
+
+### Problem 4: Pipelining and Bandwidth‑Delay Product
+
+A terrestrial fibre link runs at 10 Gb/s with a one‑way propagation delay of 15 ms. The sender uses a sliding window protocol with a fixed window size of 5000 frames. Frame size is 1500 bytes. ACKs are 64 bytes.
+
+**(a)** Calculate the bandwidth‑delay product (BDP) in bits and in number of frames.  
+**(b)** Does the window size of 5000 fully utilise the link?  
+**(c)** What is the maximum throughput achievable with the given window size?  
+**(d)** How would the answer change if Selective Repeat is used instead of Go‑Back‑N (assuming no packet loss)?
+
+---
+
+**Solution:**
+
+**(a)**
+RTT = 2 × 15 ms = 30 ms = 0.03 s.  
+$\text{BDP (bits)} = 10 \times 10^9 \times 0.03 = 300 \times 10^6 \text{ bits} = 300 \text{ Mb}$.  
+Frame size $L = 1500 \times 8 = 12,000 \text{ bits}$.  
+$\text{BDP (frames)} = \frac{300 \times 10^6}{12,000} = 25,000 \text{ frames}$.
+
+**(b)**
+No. A window of 5000 frames can only fill $5000 / 25,000 = 20\%$ of the pipe. The link would be largely idle.
+
+**(c)**
+Maximum throughput = $\frac{\text{window size} \times \text{frame size}}{\text{RTT}} = \frac{5000 \times 12,000}{0.03} = 2 \times 10^9 \text{ bps} = 2 \text{ Gb/s}$.
+
+**(d)**
+In the absence of losses, both Go‑Back‑N and Selective Repeat deliver the same throughput for a given window size, because the sender can keep the window full. The protocol difference only matters when retransmissions occur. So the answer remains 2 Gb/s.
+
+---
+
+### Problem 5: Trace of Go‑Back‑N Retransmission
+
+A Go‑Back‑N sender has a window size $N=4$ and has sent frames with sequence numbers 3, 4, 5, 6. The receiver has successfully received frames 3 and 4 (ACK 4 sent), but frame 5 is lost. Frame 6 arrives correctly.
+
+**(a)** What does the receiver do with frame 6?  
+**(b)** What ACK does the receiver send after receiving frame 6?  
+**(c)** The sender’s timer for frame 5 expires. Which frames does the sender retransmit?  
+**(d)** After the retransmission, the receiver now correctly receives frame 5 and frame 6 again (the retransmitted copy). What ACK does it send after processing them?  
+**(e)** How would the behaviour differ if the protocol were Selective Repeat?
+
+---
+
+**Solution:**
+
+**(a)**
+In Go‑Back‑N, the receiver discards any out‑of‑order packet. Since it expects frame 5, frame 6 is out of order and is **discarded**.
+
+**(b)**
+After discarding frame 6, the receiver sends a cumulative ACK for the highest in‑order sequence received, which is still **ACK 4**.
+
+**(c)**
+On timeout for frame 5, the sender retransmits **all unacknowledged frames currently in the window**: frames 5, 6, 7, 0 (assuming the window continues with the available sequence numbers). Thus it resends **5, 6, 7, 0**.
+
+**(d)**
+After correctly receiving the retransmitted 5, then 6, the consecutive in‑order delivery is restored. The receiver sends cumulative **ACK for frame 6** (meaning all bytes up to and including frame 6 are received). The exact ACK number depends on the numbering convention; using simple frame‑level ACK, it would be **ACK 7** to indicate that the next expected frame is 7.
+
+**(e)**
+With Selective Repeat, the receiver would **buffer** frame 6 and send an individual ACK for it. Upon timeout, only the missing frame 5 would be retransmitted. After receiving 5, the receiver would deliver 5 and the already‑buffered 6 to the application, and send ACK 7. No unnecessary retransmission of frames 7 and 0 would occur.
+
+---
+
+## Generative AI Usage
+
+I used ChatGPT to assist with this problem set:
+
+- It helped formulate realistic problem scenarios based on the Stop‑and‑Wait, Go‑Back‑N, and Selective Repeat protocols.
+- It checked all numerical calculations (transmission times, utilisation, bandwidth‑delay product) for correctness.
+- It verified that the protocol behaviour traces matched the state machines described in the lecture slides.

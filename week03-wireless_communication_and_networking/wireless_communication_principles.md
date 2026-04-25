@@ -1,4 +1,4 @@
-# Week 3 — Report  
+# Week 3 - Report  
 ## Wireless Communication Tradeoffs: Path Loss, Modulation, and Capacity
 
 ---

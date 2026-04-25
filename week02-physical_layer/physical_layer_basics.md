@@ -1,8 +1,8 @@
-# Week 2: Understanding the Physical Layer
+# Week 2 - Report
+## Understanding the Physical Layer
 
 **Course:** EC 441 - Introduction to Computer Networking
 **Week:** 2 - Physical Layer Basics
-**Type:** Report
 
 ---
 
@@ -361,4 +361,4 @@ The AI helped me grasp difficult concepts, but the learning and final work are m
 
 ## References
 
-- EC 441 Lecture 3 Notes:
+- EC 441 Lecture 3 Notes

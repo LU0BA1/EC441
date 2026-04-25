@@ -1,5 +1,5 @@
-# Week 1 – Information: Sources & Representation
-Type: Problem with Solutions
+# Week - 1 
+## Information: Sources & Representation
 
 ## Problem 1 – Self-Information
 

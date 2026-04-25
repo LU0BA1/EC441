@@ -1,4 +1,4 @@
-# Week 4 — Problem  
+# Week 4 - Problems with Solution
 ## Error Detection and Correction: CRC and Code Analysis
 
 ---

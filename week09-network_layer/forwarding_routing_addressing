@@ -1,0 +1,107 @@
+# Week 9 — Report
+## The Network Layer: Forwarding, Routing, and Addressing
+
+---
+
+### 1. Introduction
+
+This report summarises the core functions of the network layer as presented in Lectures 13–16. It draws directly on the lecture slides and notes to describe the principles of best‑effort delivery, the separation of the data and control planes, CIDR addressing and subnetting, longest‑prefix match forwarding, and link‑state routing with Dijkstra’s algorithm. These concepts form the foundation of the Internet’s ability to route packets across heterogeneous networks at scale.
+
+---
+
+### 2. Network Layer Responsibilities
+
+The network layer is responsible for **addressing**, **forwarding**, and **routing**. Unlike the link layer, which operates over a single hop, the network layer delivers datagrams from a source host to a destination host that may be many hops away, crossing multiple autonomous systems and link technologies. IP provides three fundamental properties:
+
+- **Best‑effort delivery** – no guarantees on delivery, ordering, or timing.
+- **Connectionless** – each packet is forwarded independently; routers do not maintain per‑flow state.
+- **Universal** – IP runs on every device and over every link‑layer technology (the “narrow waist” of the Internet protocol stack).
+
+The best‑effort model is a deliberate design choice, justified by the **end‑to‑end principle** (Lecture 13 notes, §3): reliability must be implemented at the endpoints (e.g., TCP) because only the application can truly confirm correct delivery. Placing reliability inside the network would add complexity without eliminating the need for end‑host checks.
+
+Historically, two connection‑oriented alternatives – X.25 and ATM – attempted to provide guaranteed service inside the network. Both required per‑connection state in every switch and were ultimately displaced by IP because of its simplicity, scalability, and ability to run on commodity hardware.
+
+---
+
+### 3. Data Plane vs. Control Plane
+
+A router’s functionality is split into two distinct components operating on different timescales:
+
+- **Data plane (fast path):** Per‑packet processing at line rate (nanoseconds). It performs longest‑prefix match on the destination IP address, decrements the TTL, recomputes the header checksum, and forwards the packet to the correct output port. Implemented in hardware (ASICs/TCAM) to achieve the required speed.
+- **Control plane (slow path):** Runs over seconds to minutes. It executes routing protocols (OSPF, BGP) to build the Routing Information Base (RIB). A subset of the RIB is then installed into the Forwarding Information Base (FIB) that the data plane consults.
+
+The separation provides fault isolation: if the control plane fails, the data plane continues forwarding using the last‑installed FIB. It also enables independent optimisation of hardware and software.
+
+---
+
+### 4. IP Addressing and CIDR
+
+IPv4 addresses are 32 bits long, written in dotted‑decimal notation. An address is split into a **network portion** and a **host portion** based on a prefix length `/N`. CIDR (Classless Inter‑Domain Routing) allows any prefix length, replacing the older classful system that wasted address space and caused routing table explosion.
+
+Key calculations for a given prefix `/N` (Lecture 14, slide 11):
+
+- Total addresses: $2^{32 - N}$
+- Usable host addresses: $2^{32 - N} - 2$ (subtract network and broadcast)
+- Network address: address bitwise‑AND with subnet mask (first $N$ bits 1, remaining 0)
+- Broadcast address: all host bits set to 1
+
+**Example:** For `192.168.1.0/24`:
+  - Total addresses: $2^8 = 256$
+  - Usable hosts: `192.168.1.1` to `192.168.1.254` (254 addresses)
+  - Broadcast: `192.168.1.255`
+
+Subnetting extends the prefix to divide a block into smaller sub‑networks. For instance, dividing `192.168.10.0/24` into four equal subnets borrows 2 host bits, creating four `/26` subnets each with 64 total addresses (62 usable). The alignment rule requires that a subnet’s network address be a multiple of its block size; for `/26` (block size 64) valid network addresses end in `.0`, `.64`, `.128`, `.192`.
+
+---
+
+### 5. Longest‑Prefix Match Forwarding
+
+A forwarding table stores CIDR prefixes rather than individual host addresses. Because addresses are hierarchical, a destination IP can match multiple entries of different prefix lengths. The rule is **longest‑prefix match**: always select the entry with the longest (most specific) matching prefix.
+
+**Example forwarding table:**
+
+| Prefix       | Next Hop    | Interface |
+|--------------|-------------|-----------|
+| `0.0.0.0/0`  | 203.0.113.1 | eth0      |
+| `10.0.0.0/8` | 10.255.0.1  | eth1      |
+| `10.1.0.0/16`| 10.1.255.1  | eth2      |
+| `10.1.2.0/24`| 10.1.2.254  | eth3      |
+
+- Destination `10.1.2.5` → matches `/0`, `/8`, `/16`, `/24` → longest match `/24` → forwarded out eth3.
+- Destination `10.5.6.7` → matches `/0`, `/8` → longest match `/8` → eth1.
+- Destination `172.16.0.1` → matches `/0` only → default route → eth0.
+
+This lookup is performed in hardware by a TCAM (Ternary Content‑Addressable Memory) that searches all entries in parallel in one clock cycle. Each entry is stored as a (value, mask) pair where mask bits can be “don’t care” to represent the host portion of the prefix. A priority encoder then selects the longest match.
+
+---
+
+### 6. Routing: Link‑State and Dijkstra’s Algorithm
+
+While forwarding is a local, per‑packet decision, routing is the network‑wide process of determining the best paths. In link‑state routing, each router floods information about its directly connected links to all other routers, building a complete topology map. Every router then independently runs Dijkstra’s shortest‑path algorithm to compute the shortest path tree rooted at itself.
+
+**Dijkstra’s Algorithm (simplified):**
+
+- Maintain a set $N'$ of nodes whose shortest path is finalized.
+- Initialize $N' = \{s\}$, $D(s) = 0$, $D(v) = \infty$ for $v \neq s$.
+- While $N' \neq V$:
+  - Find $w \notin N'$ with minimum $D(w)$.
+  - Add $w$ to $N'$.
+  - For each neighbor $v$ of $w$ not in $N'$: if $D(w) + c(w,v) < D(v)$, update $D(v) = D(w) + c(w,v)$.
+
+The result is a shortest‑path tree from which the forwarding table is derived: for each destination, the next hop is the first step along the computed shortest path (Lecture 15, slide 27). OSPF implements this algorithm in practice, using hello packets for neighbor discovery and LSA flooding for topology distribution.
+
+---
+
+### 7. Summary
+
+The network layer provides a simple, scalable datagram service through best‑effort, connectionless forwarding. Address allocation via CIDR and subnetting enables hierarchical aggregation, while longest‑prefix match in TCAM makes per‑packet forwarding fast enough for line‑rate operation. The separation of the data and control planes allows routing protocols like OSPF to compute optimal paths without interfering with high‑speed packet processing. Together, these mechanisms form the operational core of the Internet.
+
+---
+
+## Generative AI Usage
+
+I used ChatGPT to assist with this report:
+
+- It helped organise the content from Lectures 13–16 into a logical, flowing structure.
+- It suggested including the historical comparison of X.25 and ATM to illustrate why IP’s design won.
+- It reviewed the technical descriptions of TCAM, longest‑prefix match, and the data/control plane split to ensure accuracy.
